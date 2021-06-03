@@ -1,0 +1,33 @@
+import { AbstractControl, FormGroup } from '@angular/forms';
+
+export class DealDateValidator{
+    static afterToday(control:AbstractControl):{startDateInvalid:true}|null{
+        if(!control || !control.value) return {startDateInvalid:true};
+        const date:Date=new Date(control.value);
+        date.setHours(0,0,0);
+        const today = new Date();
+        today.setHours(0,0,0);
+        const lastDate=new Date(new Date().setMonth(today.getMonth()+1))
+        lastDate.setHours(0,0,0);
+        if(date>today && date<lastDate) return null;
+        return {startDateInvalid:true}
+    }
+     
+    static sameDate(control:FormGroup):{sameDate:true}|null{
+        if(!control || !control.value) return {sameDate:true};
+        console.log('abc')
+        const startDate:Date=new Date(control.get("dealStartTime").value);
+        const endDate:Date = new Date(control.get("dealEndTime").value);
+        if(startDate.getDate()==endDate.getDate() && startDate.getMonth()==endDate.getMonth() ) return null;
+        return{sameDate:true};
+    }
+      
+    static endDateValidator(control:FormGroup):{endTimeInvalid:true}|null{
+        if(!control||!control.value) return {endTimeInvalid:true};
+        const startDate:Date=new Date(control.get("dealStartTime").value);
+        const endDate:Date=new Date(control.get("dealEndTime").value);
+        if(startDate.getTime()<endDate.getTime()) return null;
+        return {endTimeInvalid:true}
+    }
+	}
+	
