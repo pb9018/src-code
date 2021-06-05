@@ -1,0 +1,42 @@
+public Integer addProductsTonewDeal(DealsForTodayDTO dealsForToday) throws EKartException {
+    	  
+    	  Optional<Product> optional = productRepository.findById(dealsForToday.getProductDTO().getProductId());
+    	  Product product = optional.orElseThrow(()->new EKartException("Service.PRODUCT_NOT_FOUND"));
+    	  
+    	  Optional<Seller> optional1 = sellerRepository.findById(dealsForToday.getSellerDTO().getEmailId());
+    	  Seller seller = optional1.orElseThrow(()->new EKartException("Service.SELLER_NOT_FOUND"));
+    	  
+    	  if(!(dealsForToday.getStartDate().toLocalDate().isEqual(dealsForToday.getEndDate().toLocalDate()) &&
+    			  ChronoUnit.DAYS.between(LocalDate.now(),dealsForToday.getStartDate().toLocalDate())<30 &&
+    			  dealsForToday.getEndDate().isAfter(dealsForToday.getStartDate())))
+    	  {
+    		  throw new EKartException("DealsForToday.INVALID_DETAILS");
+    	  }
+    			  
+    	  DealsForToday dealForToday = new DealsForToday();
+    	  dealForToday.setDealDiscount(dealsForToday.getDealDiscount());
+    	  dealForToday.setEndDate(dealsForToday.getEndDate());
+    	  dealForToday.setStartDate(dealsForToday.getStartDate());
+    	  dealForToday.setSeller(seller);
+    	  dealForToday.setProduct(product);
+    	  
+    	  dealsForTodayRepository.save(dealForToday);
+    	  return dealForToday.getDealId();
+    			  
+    			  
+      }
+
+
+
+
+
+
+
+Api=
+	@PostMapping(value = "/addDeal")
+	public ResponseEntity<String> addProductsTonewDeal(@Valid @RequestBody DealsForTodayDTO dealsForTodayDTO) throws EKartException {
+		
+		Integer dId = dealsForTodayService.addProductsTonewDeal(dealsForTodayDTO);
+		String message = environment.getProperty("DealsForTodayAPI.PRODUCT_ADDED_TO_DEAL_SUCCESS")+dId;
+		return new ResponseEntity<>(message, HttpStatus.CREATED);
+	}
